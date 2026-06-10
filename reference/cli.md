@@ -36,3 +36,33 @@ crucible run examples/suites/typescript-bugs/add-error-handling/crucible.yaml \
 |---|---|---|
 | (positional) | Required | The exact path to a specific `crucible.yaml` test case file. |
 | `--config` | Optional | The path to your agent config YAML. If you leave this out, it defaults to using `gpt-4o-mini` with a maximum of 20 steps. |
+
+## `crucible validate`
+
+This command validates a test case the way SWE-bench validates a candidate task before it's added to a benchmark. It runs static checks, a pre-patch run (verifying FAIL_TO_PASS tests fail and PASS_TO_PASS tests pass), and a post-patch run using the gold solution.
+
+```bash
+crucible validate examples/suites/typescript-bugs/add-error-handling/crucible.yaml
+```
+
+### Available Options
+
+| Flag | Default | Description |
+|---|---|---|
+| (positional) | Required | The exact path to a specific `crucible.yaml` test case file. |
+
+## `crucible import-pr`
+
+This command fetches a PR's diff from GitHub, splits it into a gold solution patch and an optional test patch, and automatically scaffolds a new `crucible.yaml` test case complete with `expected_files` and `forbid_modified` fields.
+
+```bash
+crucible import-pr crucible-org/agr 123 --outdir examples/suites/new-bug
+```
+
+### Available Options
+
+| Flag | Default | Description |
+|---|---|---|
+| (positional) | Required | The GitHub repository in `owner/repo` format. |
+| (positional) | Required | The Pull Request number. |
+| `--outdir` | Required | The destination directory to scaffold the test case into. |

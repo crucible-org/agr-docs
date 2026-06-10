@@ -17,6 +17,18 @@ success:
   - assert: steps <= 10
   - assert: cost_usd <= 0.05
 timeout_seconds: 300
+
+# SWE-bench based metadata (optional)
+test_command: "npx tsx --test --test-reporter=tap src/client.test.ts"
+fail_to_pass:
+  - "should retry on failure and succeed"
+pass_to_pass:
+  - "should succeed on first attempt"
+expected_files:
+  - src/client.ts
+forbid_modified:
+  - src/client.test.ts
+solution: ./solution.patch
 ```
 
 ## Schema Reference
@@ -50,3 +62,17 @@ A list of specific checks to determine if the agent successfully completed the t
 ### `timeout_seconds`
 **Type:** `number`  
 The absolute maximum time allowed for the run, measured in seconds. If the agent does not finish its work or submit within this time limit, the run is considered a failure.
+
+### SWE-bench Based Fields (Optional)
+
+The following fields mirror the metadata found in SWE-bench instances to provide granular test scoring, tamper guards, and regression testing:
+
+*   **`tags`**: A list of strings used for tag-based pass-rate breakdowns in the `crucible bench` command.
+*   **`test_command`**: The shell command used to run the test suite. The CLI currently expects TAP output to parse `PASS/FAIL/SKIP` states.
+*   **`fail_to_pass`**: A list of test names that are expected to be failing before the agent's changes, and passing after.
+*   **`pass_to_pass`**: A list of test names that are passing initially and must remain passing (regression guard).
+*   **`forbid_modified`**: A list of glob patterns representing files the agent is NOT allowed to touch (e.g., test files to prevent tampering).
+*   **`expected_files`**: A list of glob patterns of files the agent is expected to touch. Used by the `LocalizationScorer` to calculate precision/recall metrics.
+*   **`solution`**: Path to a gold-standard patch (or a raw unified diff) that solves the issue. Used by the `DiffScorer` and `crucible validate`.
+*   **`test_patch`**: Path to a patch that adds or updates tests. This patch is applied strictly for evaluation and is completely hidden from the agent.
+*   **`created_at`**: Original issue/PR creation date (useful for contamination or date-cutoff checks).
