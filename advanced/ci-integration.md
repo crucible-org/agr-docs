@@ -1,6 +1,6 @@
 # CI Integration
 
-Crucible AGR is completely designed to run flawlessly in standard CI environments like GitHub Actions, GitLab CI, or TeamCity.
+Agentgrader is completely designed to run flawlessly in standard CI environments like GitHub Actions, GitLab CI, or TeamCity.
 
 Because it supports checking agent assertions right out of the box (like `assert: steps <= 10` or `assert: cost_usd <= 0.05`), you can easily configure it to fail your CI build if the evaluation conditions are not met.
 
@@ -9,7 +9,7 @@ Because it supports checking agent assertions right out of the box (like `assert
 Here is an example of a typical GitHub Actions workflow that executes your benchmark suite on every pull request.
 
 ```yaml
-name: Crucible Benchmarks
+name: Agentgrader Benchmarks
 
 on: [push, pull_request]
 
@@ -29,10 +29,10 @@ jobs:
         run: echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> $GITHUB_ENV
 
       # Finally, we run the benchmark
-      - name: Run Crucible
+      - name: Run Agentgrader
         run: |
-          npm install -g @crucible-agr/cli
-          crucible bench --suite ./tests/suites --configs ./baseline.yaml
+          npm install -g agentgrader
+          agr bench --suite ./tests/suites --configs ./baseline.yaml
 ```
 
 ## Things to Keep in Mind

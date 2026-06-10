@@ -1,6 +1,6 @@
-# Test Case (crucible.yaml)
+# Test Case (agr.yaml)
 
-A test case is how you define the problem you want your agent to solve. It also sets the rules for figuring out if the agent actually succeeded. Everything is defined in a simple `crucible.yaml` manifest file.
+A test case is how you define the problem you want your agent to solve. It also sets the rules for figuring out if the agent actually succeeded. Everything is defined in a simple `agr.yaml` manifest file.
 
 ```yaml
 name: add-error-handling
@@ -43,7 +43,7 @@ A short and easy to read summary explaining what the test is about.
 
 ### `fixture`
 **Type:** `string`  
-This is the path to the directory that holds the base code for the task. It is relative to where the `crucible.yaml` file is located. When a test runs, the contents of this directory will be copied straight into the container sandbox.
+This is the path to the directory that holds the base code for the task. It is relative to where the `agr.yaml` file is located. When a test runs, the contents of this directory will be copied straight into the container sandbox.
 
 ### `prompt`
 **Type:** `string`  
@@ -67,12 +67,12 @@ The absolute maximum time allowed for the run, measured in seconds. If the agent
 
 The following fields mirror the metadata found in SWE-bench instances to provide granular test scoring, tamper guards, and regression testing:
 
-*   **`tags`**: A list of strings used for tag-based pass-rate breakdowns in the `crucible bench` command.
+*   **`tags`**: A list of strings used for tag-based pass-rate breakdowns in the `agr bench` command.
 *   **`test_command`**: The shell command used to run the test suite. The CLI currently expects TAP output to parse `PASS/FAIL/SKIP` states.
 *   **`fail_to_pass`**: A list of test names that are expected to be failing before the agent's changes, and passing after.
 *   **`pass_to_pass`**: A list of test names that are passing initially and must remain passing (regression guard).
 *   **`forbid_modified`**: A list of glob patterns representing files the agent is NOT allowed to touch (e.g., test files to prevent tampering).
 *   **`expected_files`**: A list of glob patterns of files the agent is expected to touch. Used by the `LocalizationScorer` to calculate precision/recall metrics.
-*   **`solution`**: Path to a gold-standard patch (or a raw unified diff) that solves the issue. Used by the `DiffScorer` and `crucible validate`.
+*   **`solution`**: Path to a gold-standard patch (or a raw unified diff) that solves the issue. Used by the `DiffScorer` and `agr validate`.
 *   **`test_patch`**: Path to a patch that adds or updates tests. This patch is applied strictly for evaluation and is completely hidden from the agent.
 *   **`created_at`**: Original issue/PR creation date (useful for contamination or date-cutoff checks).

@@ -1,16 +1,16 @@
 # Programmatic API
 
-If you want to embed Crucible right into your existing CI pipelines or tools, you can easily do that using the TypeScript Programmatic API exposed by `@crucible-agr/core`.
+If you want to embed Agentgrader right into your existing CI pipelines or tools, you can easily do that using the TypeScript Programmatic API exposed by `@agentgrader/core`.
 
 ## `runSingle()`
 
 This function lets you run a single test case programmatically.
 
 ```typescript
-import { runSingle } from "@crucible-agr/core";
-import { DockerSandboxProvider } from "@crucible-agr/sandbox-docker";
-import { OpenRouterAgentAdapter } from "@crucible-agr/agent-openrouter";
-import { initDb } from "@crucible-agr/store";
+import { runSingle } from "@agentgrader/core";
+import { DockerSandboxProvider } from "@agentgrader/sandbox-docker";
+import { OpenRouterAgentAdapter } from "@agentgrader/agent-openrouter";
+import { initDb } from "@agentgrader/store";
 import { randomUUID } from "crypto";
 
 const result = await runSingle({
@@ -45,7 +45,7 @@ console.log(result.finalDiff); // The git diff showing exactly what changed
 This function is for when you want to orchestrate multiple test cases against multiple agent configurations all at the same time.
 
 ```typescript
-import { runBenchmark } from "@crucible-agr/core";
+import { runBenchmark } from "@agentgrader/core";
 
 const result = await runBenchmark({
   testCases: [...],      // An array of TestCase objects

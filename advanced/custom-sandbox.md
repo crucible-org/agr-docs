@@ -7,7 +7,7 @@ You just need to fulfill the `SandboxProvider` interface. This interface handles
 ## Implementation Example
 
 ```typescript
-import type { SandboxProvider, SandboxHandle } from "@crucible-agr/core";
+import type { SandboxProvider, SandboxHandle } from "@agentgrader/core";
 
 export class MyCloudProvider implements SandboxProvider {
   readonly name = "my-cloud";

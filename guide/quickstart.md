@@ -1,6 +1,6 @@
 # Quickstart
 
-It is super easy to get started with Crucible AGR. You can have your first benchmark running in just a few minutes.
+It is super easy to get started with Agentgrader. You can have your first benchmark running in just a few minutes.
 
 Before we jump in, make sure you have a few things ready:
 *   Node.js (v18+) or [Bun](https://bun.sh/) installed on your machine.
@@ -13,7 +13,7 @@ First, grab the repository from GitHub and install all the necessary dependencie
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/crucible-org/agr
+git clone https://github.com/agentgrader/agr
 cd agr
 
 # 2. Install all dependencies
@@ -25,7 +25,7 @@ npm run build
 
 ## 2. Set Up Your Environment
 
-By default, Crucible uses OpenRouter as the gateway for Large Language Models. You just need to set your API key in your environment variables. If you do not have an OpenRouter key, it will smoothly fall back to direct OpenAI as long as you provide an `OPENAI_API_KEY`.
+By default, Agentgrader uses OpenRouter as the gateway for Large Language Models. You just need to set your API key in your environment variables. If you do not have an OpenRouter key, it will smoothly fall back to direct OpenAI as long as you provide an `OPENAI_API_KEY`.
 
 ```bash
 export OPENROUTER_API_KEY=sk-or-...

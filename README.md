@@ -1,4 +1,4 @@
-# crucible-docs
+# agentgrader-docs
 
 To install dependencies:
 

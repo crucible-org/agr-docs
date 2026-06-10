@@ -1,5 +1,5 @@
 {
-  "name": "crucible-docs",
+  "name": "agentgrader-docs",
   "module": "index.ts",
   "type": "module",
   "private": true,

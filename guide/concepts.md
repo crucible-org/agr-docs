@@ -1,13 +1,13 @@
 # Core Concepts
 
-When you start using Crucible AGR, there are a few important concepts that form the backbone of how everything works together. Let's break them down clearly.
+When you start using Agentgrader, there are a few important concepts that form the backbone of how everything works together. Let's break them down clearly.
 
-## 1. The Test Case (`crucible.yaml`)
+## 1. The Test Case (`agr.yaml`)
 
-Think of a test case as the specific challenge you are giving to your agent. It lives inside a folder containing a `crucible.yaml` file and a `fixture/` directory. The fixture folder holds the starting codebase that your agent will try to fix or modify.
+Think of a test case as the specific challenge you are giving to your agent. It lives inside a folder containing an `agr.yaml` file and a `fixture/` directory. The fixture folder holds the starting codebase that your agent will try to fix or modify.
 
 ```yaml
-# crucible.yaml
+# agr.yaml
 name: add-error-handling
 description: fetchWithRetry() crashes on network timeout. Please make it resilient.
 fixture: ./fixture          # The path to the starting codebase, relative to this file
@@ -31,7 +31,7 @@ timeout_seconds: 300
 
 ## 2. Agent Config (`baseline.yaml`)
 
-This configuration file tells Crucible exactly which model to use and how it should behave.
+This configuration file tells Agentgrader exactly which model to use and how it should behave.
 
 ```yaml
 id: baseline
@@ -53,7 +53,7 @@ The `model` field is incredibly flexible. You can use any model that is availabl
 
 ## 3. The Sandbox
 
-For every single run, Crucible provisions a fresh and completely isolated Docker container. The starting code from the fixture folder is copied directly into `/app` inside the container. 
+For every single run, Agentgrader provisions a fresh and completely isolated Docker container. The starting code from the fixture folder is copied directly into `/app` inside the container. 
 
 The agent interacts with this environment using four core tools:
 
@@ -64,11 +64,11 @@ The agent interacts with this environment using four core tools:
 | `writeFile(path, content)` | Writes your new content into a specific file. |
 | `submit({ summary })` | Lets the framework know that the agent believes the task is complete. |
 
-Once the agent calls `submit()` or the run hits the timeout limit, Crucible steps in and runs the scorers to verify the final result.
+Once the agent calls `submit()` or the run hits the timeout limit, Agentgrader steps in and runs the scorers to verify the final result.
 
 ## 4. Scoring
 
-Crucible handles scoring automatically at the end of each evaluation using two main tools:
+Agentgrader handles scoring automatically at the end of each evaluation using two main tools:
 
 *   **CommandScorer**: This runs every `run:` criterion as a shell command within the sandbox and validates the exit code.
 *   **AssertionScorer**: This evaluates mathematical `assert:` expressions. You have access to variables like `steps`, `cost_usd`, `tokens_in`, and `tokens_out` to create very flexible success criteria.

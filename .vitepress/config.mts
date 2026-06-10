@@ -3,7 +3,7 @@ import { withMermaid } from 'vitepress-plugin-mermaid'
 
 export default withMermaid(defineConfig({
   base: '/agr-docs/',
-  title: "Crucible Agentgrader",
+  title: "Agentgrader",
   description: "Agent testing framework.",
   themeConfig: {
     search: {
@@ -12,7 +12,7 @@ export default withMermaid(defineConfig({
     logo: '/LGO.svg',
     nav: [
       { text: 'Home', link: '/' },
-      { text: 'Guide', link: '/guide/what-is-crucible' },
+      { text: 'Guide', link: '/guide/what-is-agentgrader' },
       { text: 'Reference', link: '/reference/cli' },
       { text: 'Advanced', link: '/advanced/custom-adapter' }
     ],
@@ -20,7 +20,7 @@ export default withMermaid(defineConfig({
       {
         text: 'Guide',
         items: [
-          { text: 'What is Crucible AGR?', link: '/guide/what-is-crucible' },
+          { text: 'What is Agentgrader?', link: '/guide/what-is-agentgrader' },
           { text: 'Quickstart', link: '/guide/quickstart' },
           { text: 'Core Concepts', link: '/guide/concepts' }
         ]
@@ -29,7 +29,7 @@ export default withMermaid(defineConfig({
         text: 'Reference',
         items: [
           { text: 'CLI Reference', link: '/reference/cli' },
-          { text: 'Test Case (crucible.yaml)', link: '/reference/test-case-yaml' },
+          { text: 'Test Case (agr.yaml)', link: '/reference/test-case-yaml' },
           { text: 'Agent Config (baseline.yaml)', link: '/reference/agent-config-yaml' },
           { text: 'Packages Architecture', link: '/reference/packages' }
         ]
@@ -45,7 +45,7 @@ export default withMermaid(defineConfig({
       }
     ],
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/crucible-org/agr' }
+      { icon: 'github', link: 'https://github.com/agentgrader/agr' }
     ]
   }
 }))

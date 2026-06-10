@@ -2,23 +2,23 @@
 layout: home
 
 hero:
-  name: "Crucible Agentgrader"
+  name: "Agentgrader"
   text: ""
   tagline: The open-source benchmarking framework to test your AI agents on real coding tasks.
   image:
     src: /LGO.svg
-    alt: Crucible AGR Logo
+    alt: Agentgrader Logo
   actions:
     - theme: brand
       text: Let's get started
       link: /guide/quickstart
     - theme: alt
       text: View on GitHub
-      link: https://github.com/crucible-org/agr
+      link: https://github.com/agentgrader/agr
 
 features:
   - title: Language Agnostic
-    details: You can run your agents in any programming language supported by Docker. Whether it is TypeScript, Python, Rust, or Go, Crucible has you covered.
+    details: You can run your agents in any programming language supported by Docker. Whether it is TypeScript, Python, Rust, or Go, Agentgrader has you covered.
   - title: Real Execution
     details: We do not use mocks. Your agent actually runs real commands and edits actual files directly inside a secure Docker container.
   - title: Automated Scoring

@@ -1,13 +1,13 @@
 # Custom Agent Adapter
 
-Crucible AGR is designed to be highly flexible. It allows you to bring your very own agent implementation into the framework. Whether you want to test a JetBrains AI Assistant, a local Ollama model, or proprietary agents, you can do it by writing a Custom Agent Adapter.
+Agentgrader is designed to be highly flexible. It allows you to bring your very own agent implementation into the framework. Whether you want to test a JetBrains AI Assistant, a local Ollama model, or proprietary agents, you can do it by writing a Custom Agent Adapter.
 
 All you need to do is implement the `AgentAdapter` interface.
 
 ## Implementation Example
 
 ```typescript
-import type { AgentAdapter, AgentResult, StepEvent } from "@crucible-agr/core";
+import type { AgentAdapter, AgentResult, StepEvent } from "@agentgrader/core";
 
 export class MyCustomAdapter implements AgentAdapter {
   readonly name = "my-agent";
@@ -16,7 +16,7 @@ export class MyCustomAdapter implements AgentAdapter {
     prompt: string;
     sandbox: SandboxHandle;    // The docker sandbox where you call exec(), readFile(), writeFile()
     config: AgentConfig;       // Contains model, max_steps, system_prompt, etc.
-    onStep: (step: StepEvent) => void;   // Call this for every step so Crucible can track your cost
+    onStep: (step: StepEvent) => void;   // Call this for every step so Agentgrader can track your cost
   }): Promise<AgentResult> {
     // 1. Initialize your custom logic right here
     
