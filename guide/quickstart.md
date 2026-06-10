@@ -50,3 +50,9 @@ Sometimes you just want to focus on a single test case instead of running a full
 ```bash
 just run
 ```
+
+## 4. Programmatic API
+
+If you are a developer looking to integrate Agentgrader directly into your own CI/CD pipelines, tools, or custom evaluation scripts, you don't have to use the CLI. Agentgrader has a powerful programmatic API!
+
+Check out the [Programmatic API](/advanced/programmatic-api) guide to learn how to import `@agentgrader/core` and use the `runSingle` and `runBenchmark` functions directly in your code.

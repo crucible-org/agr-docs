@@ -13,6 +13,9 @@ hero:
       text: Let's get started
       link: /guide/quickstart
     - theme: alt
+      text: Programmatic API
+      link: /advanced/programmatic-api
+    - theme: alt
       text: View on GitHub
       link: https://github.com/agentgrader/agr
 
@@ -25,8 +28,8 @@ features:
     details: It is easy to know if your agent succeeded. Pass and fail states are determined objectively by running real test suites like npm test or pytest.
   - title: Cost and Token Tracking
     details: Keep a close eye on your budget. Every run automatically tracks the exact tokens consumed and the total cost in USD per model.
-  - title: Pluggable Adapters
-    details: Flexibility is key. You can swap out the LLM provider, the sandbox environment, or the scoring logic without ever touching the core framework.
+  - title: Programmatic API First
+    details: The core framework is fully decoupled from the CLI. Build your own testing infrastructure, plug in custom Agent Adapters, or orchestrate distributed evaluations programmatically using Node.js or Bun.
   - title: Node & Bun Support
     details: It is designed to be incredibly flexible and fast. The framework runs on standard Node.js or Bun, utilizing better-sqlite3 for a lightning fast local database experience.
 ---

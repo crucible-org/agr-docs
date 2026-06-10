@@ -14,7 +14,7 @@ export default withMermaid(defineConfig({
       { text: 'Home', link: '/' },
       { text: 'Guide', link: '/guide/what-is-agentgrader' },
       { text: 'Reference', link: '/reference/cli' },
-      { text: 'Advanced', link: '/advanced/custom-adapter' }
+      { text: 'API & Advanced', link: '/advanced/programmatic-api' }
     ],
     sidebar: [
       {
@@ -35,11 +35,11 @@ export default withMermaid(defineConfig({
         ]
       },
       {
-        text: 'Advanced',
+        text: 'Developer API & Advanced',
         items: [
+          { text: 'Programmatic API', link: '/advanced/programmatic-api' },
           { text: 'Custom Agent Adapter', link: '/advanced/custom-adapter' },
           { text: 'Custom Sandbox Provider', link: '/advanced/custom-sandbox' },
-          { text: 'Programmatic API', link: '/advanced/programmatic-api' },
           { text: 'CI Integration', link: '/advanced/ci-integration' }
         ]
       }
