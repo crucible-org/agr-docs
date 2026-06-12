@@ -173,3 +173,35 @@ agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f
 # Quality metrics only
 agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --quality
 ```
+
+## `agr compare`
+
+Compare the step traces of two completed runs side by side. Useful after a matrix or bench run with multiple agent configs on the same test case: see when and where the agents diverged (different tool calls, files, or reasoning).
+
+```bash
+agr compare 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f 7a8b9c0d-1e2f-3a4b-5c6d-7e8f9a0b1c2d
+```
+
+Run IDs come from bench/run output or the `runs` table in `.agr/db.sqlite`. Both runs should usually share the same `test_case_id` so step indices align.
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `<runIdA>` | Required | First run to compare (shown as column A). |
+| `<runIdB>` | Required | Second run to compare (shown as column B). |
+| `--full` | `false` | Print full step content without the 200-character truncation used by `agr trace`. |
+| `--only-diff` | `false` | Show only divergent steps, plus one step of context before and after each divergence. |
+
+### Examples
+
+```bash
+# Full side-by-side comparison
+agr compare <runIdA> <runIdB>
+
+# Only where the runs diverged (with 1-step context)
+agr compare <runIdA> <runIdB> --only-diff
+
+# Full content for divergent steps
+agr compare <runIdA> <runIdB> --only-diff --full
+```
