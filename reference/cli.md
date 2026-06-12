@@ -163,6 +163,7 @@ agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f
 |---|---|---|
 | `<runId>` | Required | UUID of the run to inspect. |
 | `--quality` | `false` | Show only the quality-metrics breakdown (`static-quality`, `llm-judge`, diff, localization) instead of the full step trace. |
+| `--tools` | `false` | Show only a tool-usage breakdown: how many times each tool name appears across the run's `tool_call` steps, sorted by call count. |
 
 ### Examples
 
@@ -172,7 +173,12 @@ agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f
 
 # Quality metrics only
 agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --quality
+
+# Tool-usage breakdown (which tools the agent actually called, and how often)
+agr trace 3f1c2e2a-8b4d-4e1f-9c3a-1a2b3c4d5e6f --tools
 ```
+
+`--tools` is especially useful for checking whether a custom toolkit, MCP server, or Agent Skill was actually used by the agent versus only made available to it. For example, if you wire in a custom toolkit but its tools show a count of `0`, the agent saw the tool but chose not to call it, which may be a sign the system prompt needs to nudge it more explicitly.
 
 ## `agr compare`
 
