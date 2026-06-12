@@ -1,12 +1,11 @@
-# Agent Config (baseline.yaml)
+# Agent Config (`agent.yaml`)
 
-The Agent Config file is where you decide exactly which model to use. It lets you fine tune hyperparameters and provide the system prompt that the agent will use during its evaluation.
+The agent config selects which model to use, how many steps it may take, and the system prompt injected at the start of each run.
 
 ```yaml
-id: baseline
 name: Baseline Agent
-provider: openrouter   # optional - "openrouter" (default), "openai", or "anthropic"
-model: gpt-4o-mini
+provider: openrouter
+model: openai/gpt-4o-mini
 max_steps: 15
 temperature: 0.2
 system_prompt: |
@@ -15,28 +14,86 @@ system_prompt: |
   Call submit when all tests pass.
 ```
 
-## Schema Reference
+Pass the file to `agr run --config agent.yaml` or `agr bench --configs agent.yaml`.
 
-### `id`
-**Type:** `string`  
-A unique string identifier for this particular agent configuration.
+## Schema reference
 
 ### `name`
-**Type:** `string`  
-A friendly, human readable name for the configuration so you can easily identify it.
+
+**Type:** `string` (required)
+
+Human-readable name for this configuration. Shown in bench dashboards and stored in the database.
+
+### `id`
+
+**Type:** `string` (optional)
+
+Unique identifier. Defaults to `name` if omitted.
 
 ### `model`
-**Type:** `string`  
-The specific LLM you want to evaluate. This field is super flexible and supports any valid OpenRouter model string. For example, you can use `openai/gpt-4o`, `anthropic/claude-opus-4`, or `google/gemini-2.5-pro`.
+
+**Type:** `string` (required)
+
+LLM identifier. With the default OpenRouter provider, use OpenRouter model strings (`openai/gpt-4o`, `anthropic/claude-sonnet-4`). With `provider: openai` or `provider: anthropic`, use that provider's native model names.
+
+### `provider`
+
+**Type:** `string` (optional, default: `openrouter`)
+
+API gateway: `openrouter`, `openai`, or `anthropic`. Determines which environment variable is required (`OPENROUTER_API_KEY`, `OPENAI_API_KEY`, or `ANTHROPIC_API_KEY`).
 
 ### `max_steps`
-**Type:** `number`  
-This sets a hard limit on the number of ReAct loop iterations the agent is allowed to execute before it is forced to stop.
+
+**Type:** `number` (default: `30`)
+
+Hard cap on ReAct loop iterations before the agent is stopped.
 
 ### `temperature`
-**Type:** `number`  
-The sampling temperature for the model, which controls how creative or deterministic the outputs will be.
+
+**Type:** `number` (optional)
+
+Sampling temperature for the model.
 
 ### `system_prompt`
-**Type:** `string`  
-This is the core prompt injected right into the LLM at the very beginning of the run. It is where you define the persona and explain which tools the agent has available to use.
+
+**Type:** `string` (optional)
+
+System message injected at the start of the run. Define the agent's persona and available tools here.
+
+### `tools`
+
+**Type:** `string[]` (optional)
+
+Reserved for future per-tool configuration. The default agent uses the built-in sandbox tools (`executeCommand`, `readFile`, `writeFile`, `submit`).
+
+### `toolkits`
+
+**Type:** `string[]` (optional)
+
+Paths to toolkit directories containing custom CLI tools and Agent Skills (`SKILL.md` files). Toolkits are injected into the sandbox and their skill names/descriptions are appended to the system prompt. Can also be set per test case in `agr.yaml`.
+
+### `mcp_servers`
+
+**Type:** `record<string, McpServerConfig>` (optional)
+
+MCP servers to connect to and expose as additional agent tools. Each entry is keyed by a short name.
+
+**Stdio server:**
+
+```yaml
+mcp_servers:
+  my-tools:
+    command: npx
+    args: ["-y", "@modelcontextprotocol/server-filesystem", "/app"]
+```
+
+**HTTP/SSE server:**
+
+```yaml
+mcp_servers:
+  remote:
+    type: http
+    url: https://example.com/mcp
+    headers:
+      Authorization: Bearer ${TOKEN}
+```

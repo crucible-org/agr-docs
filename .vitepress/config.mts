@@ -22,7 +22,8 @@ export default withMermaid(defineConfig({
         items: [
           { text: 'What is Agentgrader?', link: '/guide/what-is-agentgrader' },
           { text: 'Quickstart', link: '/guide/quickstart' },
-          { text: 'Core Concepts', link: '/guide/concepts' }
+          { text: 'Core Concepts', link: '/guide/concepts' },
+          { text: 'Best Practices', link: '/guide/best-practices' }
         ]
       },
       {
@@ -30,7 +31,7 @@ export default withMermaid(defineConfig({
         items: [
           { text: 'CLI Reference', link: '/reference/cli' },
           { text: 'Test Case (agr.yaml)', link: '/reference/test-case-yaml' },
-          { text: 'Agent Config (baseline.yaml)', link: '/reference/agent-config-yaml' },
+          { text: 'Agent Config (agent.yaml)', link: '/reference/agent-config-yaml' },
           { text: 'Packages Architecture', link: '/reference/packages' }
         ]
       },

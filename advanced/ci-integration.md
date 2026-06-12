@@ -1,12 +1,25 @@
 # CI Integration
 
-Agentgrader is completely designed to run flawlessly in standard CI environments like GitHub Actions, GitLab CI, or TeamCity.
+Agentgrader runs in standard CI environments (GitHub Actions, GitLab CI, TeamCity, and others) as long as Docker and an LLM API key are available.
 
-Because it supports checking agent assertions right out of the box (like `assert: steps <= 10` or `assert: cost_usd <= 0.05`), you can easily configure it to fail your CI build if the evaluation conditions are not met.
+Use `assert:` criteria in test cases (`assert: steps <= 10`, `assert: cost_usd <= 0.05`) to fail builds when evaluation limits are exceeded. Use `agr validate --strict` to reject incomplete test case definitions before running expensive agent evaluations.
 
-## GitHub Actions Example
+## Validate test cases in CI
 
-Here is an example of a typical GitHub Actions workflow that executes your benchmark suite on every pull request.
+Before running agents, verify test case definitions are complete:
+
+```bash
+npm install -g agentgrader
+agr validate test-cases/my-case/agr.yaml --strict
+```
+
+`--strict` exits with code 1 if `test_command`, `fail_to_pass`, or `pass_to_pass` are missing. Without it, `agr validate` may pass with only static YAML checks (execution checks skipped when `test_command` is absent).
+
+See [Best Practices: Validate before you benchmark](/guide/best-practices#validate-before-you-benchmark).
+
+## GitHub Actions example
+
+Benchmark on every pull request:
 
 ```yaml
 name: Agentgrader Benchmarks
@@ -17,26 +30,33 @@ jobs:
   bench:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
-      # First, we set up Node.js
       - uses: actions/setup-node@v4
         with:
           node-version: 20
 
-      # Next, we set up your models
-      - name: Export API keys
-        run: echo "OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }}" >> $GITHUB_ENV
+      - name: Install Agentgrader
+        run: npm install -g agentgrader
 
-      # Finally, we run the benchmark
-      - name: Run Agentgrader
+      - name: Validate test cases
         run: |
-          npm install -g agentgrader
-          agr bench --suite ./tests/suites --configs ./baseline.yaml
+          for f in test-cases/*/agr.yaml; do
+            agr validate "$f" --strict
+          done
+
+      - name: Run benchmark
+        env:
+          OPENROUTER_API_KEY: ${{ secrets.OPENROUTER_API_KEY }}
+        run: |
+          agr bench --suite test-cases/ --config agent.yaml --concurrency 2
 ```
 
-## Things to Keep in Mind
+## Things to keep in mind
 
-*   Ensure that Docker is available in your CI runner. If you are using the latest Ubuntu runner on GitHub Actions, Docker is already pre-installed for you.
-*   Make absolutely sure your API keys are supplied via encrypted environment secrets and never hardcoded.
-*   If you have a massive suite of tests, you can use the `--concurrency` flag or the programmatic API to distribute executions and speed things up.
+- **Docker** must be available on the runner. `ubuntu-latest` on GitHub Actions includes Docker.
+- **API keys** must come from encrypted secrets: never hardcode them. The CLI also reads a `.env` file if present, but CI should use `env:` / secrets instead.
+- **Concurrency**: use `--concurrency` to parallelize sandbox runs. Balance against runner CPU and Docker limits.
+- **Cost**: agent benchmarks consume LLM tokens. Consider running on a schedule or only on labeled PRs for large suites.
+
+For embedding evaluations in custom CI logic, see the [Programmatic API](/advanced/programmatic-api).

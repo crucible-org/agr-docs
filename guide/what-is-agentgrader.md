@@ -1,33 +1,39 @@
 # What is Agentgrader?
 
-Welcome to **Agentgrader**. This is an open-source agent architecture benchmarking framework specifically built for TypeScript and Bun/Node projects. 
+**Agentgrader** is an open-source framework for benchmarking AI coding agents. Run agents against real programming test cases inside isolated Docker sandboxes, score results objectively, and track cost, token usage, and pass rates over time.
 
-Think of it as a testing ground for your AI coding agents. It gives you the power to run your agents against real programming tasks inside completely isolated Docker sandboxes. Once the agent is done, Agentgrader automatically scores its work and tracks important metrics like cost, token usage, and pass rates over time.
+Install it from npm: no repository clone required:
 
-The core idea is simple. You have a coding agent with different tools powered by a model like GPT-4o, Claude, or Gemini, and you want to know objectively how good it actually is. Agentgrader provides you with all the infrastructure you need to find out.
+```bash
+npm install -g agentgrader
+```
 
-## Key Features
+The core idea: you have a coding agent (GPT-4o, Claude, Gemini, or your own implementation) and you want to know objectively how good it is on real tasks. Agentgrader provides the infrastructure to find out.
 
-*   **Language-agnostic tasks:** You can work with any language that runs in Docker, including TypeScript, Python, Rust, and Go.
-*   **Real execution:** The agent actually runs commands and edits files within a Docker container. There is no mocking involved.
-*   **Automated scoring:** Pass and fail states are determined by running real test suites like `npm test` or `pytest`.
-*   **Budget tracking:** Every single run keeps track of the tokens consumed and the USD cost per model.
-*   **Pluggable adapters:** You can easily swap out the LLM, the sandbox, or the scorer without needing to touch any core logic.
-*   **Node & Bun Support:** The framework runs effortlessly on standard Node.js environments as well as [Bun](https://bun.sh), utilizing `better-sqlite3` for an incredibly fast local database.
+## Key features
 
-## Architecture Overview
+- **Language-agnostic test cases:** Any language that runs in Docker: TypeScript, Python, Rust, Go, and more.
+- **Real execution:** Agents run commands and edit files in a Docker container. No mocks.
+- **Automated scoring:** Pass and fail are determined by running real test suites (`npm test`, `pytest`, etc.) and optional per-test regression checks.
+- **Budget tracking:** Every run records tokens consumed and USD cost per model.
+- **Pluggable adapters:** Swap the LLM adapter, sandbox provider, or scorers without changing core logic.
+- **Node and Bun:** Runs on Node.js 18+ or [Bun](https://bun.sh/). Results persist in a local SQLite database.
 
-Agentgrader seamlessly connects your agent configuration, task definitions, and execution environments.
+## Architecture overview
 
 ```mermaid
 graph TD
     A[Agent Config] --> C(Agentgrader Core Engine)
     B[Test Case] --> C
     C -->|Spawns| D[Docker Sandbox]
-    C -->|Calls LLM| E[OpenRouter/OpenAI API]
+    C -->|Calls LLM| E[OpenRouter / OpenAI / Anthropic]
     D -->|Executes| F[Test Scorer]
-    C --> G[(SQLite Database)]
+    C --> G[(.agr/db.sqlite)]
     F --> C
 ```
 
-You start by defining a baseline agent and a suite of test cases. Agentgrader then iterates through these cases, giving the agent an isolated sandbox where it can run commands, edit code, and attempt to fix the problem. Once the agent finishes, the framework executes validation commands right inside the container to see if the task was successfully completed, and everything is safely recorded in your database.
+You define agent configs and test cases. Agentgrader iterates through evaluations, giving each agent an isolated sandbox to run commands and edit code. When the agent finishes, validation runs inside the container and results are stored in `.agr/db.sqlite`.
+
+## Get started
+
+Follow the [Quickstart](/guide/quickstart) to install the CLI and run your first evaluation in minutes.

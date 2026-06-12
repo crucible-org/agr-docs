@@ -1,78 +1,177 @@
-# Test Case (agr.yaml)
+# Test Case (`agr.yaml`)
 
-A test case is how you define the problem you want your agent to solve. It also sets the rules for figuring out if the agent actually succeeded. Everything is defined in a simple `agr.yaml` manifest file.
+A test case defines the problem an agent should solve and how success is measured. Each test case is a folder containing `agr.yaml` and a `fixture/` directory with the starting codebase.
 
 ```yaml
-name: add-error-handling
-description: fetchWithRetry() crashes on network timeout. Please make it resilient.
+name: fix-greeting
+description: greet() is missing the exclamation mark
 fixture: ./fixture
 prompt: |
-  The function fetchWithRetry() in src/client.ts throws an unhandled error when
-  the network times out. Add proper error handling so it retries up to 3 times
-  (total of 4 attempts: 1 initial and 3 retries), then throws the error if all fail.
-  Please do not change the signature of fetchWithRetry.
+  The greet() function in src/greet.js should return "Hello, World!" but
+  currently returns "Hello, World". Fix the function so all tests pass.
 success:
-  - run: npm install && npm test
+  - run: npm test
     expect: { exit_code: 0 }
   - assert: steps <= 10
   - assert: cost_usd <= 0.05
 timeout_seconds: 300
 
-# SWE-bench based metadata (optional)
-test_command: "npx tsx --test --test-reporter=tap src/client.test.ts"
+test_command: "node --test --test-reporter=tap src/**/*.test.js"
 fail_to_pass:
-  - "should retry on failure and succeed"
+  - "handles empty input"
 pass_to_pass:
-  - "should succeed on first attempt"
+  - "greet returns a friendly message"
 expected_files:
-  - src/client.ts
+  - src/greet.js
 forbid_modified:
-  - src/client.test.ts
+  - src/greet.test.js
 solution: ./solution.patch
+test_patch: ./test_patch.patch
+created_at: "2024-06-01T00:00:00Z"
+tags:
+  - javascript
 ```
 
-## Schema Reference
+## Schema reference
 
 ### `name`
-**Type:** `string`  
-A unique string that identifies this specific test case.
+
+**Type:** `string` (required)
+
+Unique identifier for this test case.
+
+### `id`
+
+**Type:** `string` (optional)
+
+Database ID. Defaults to `name` if omitted.
 
 ### `description`
-**Type:** `string`  
-A short and easy to read summary explaining what the test is about.
+
+**Type:** `string` (optional)
+
+Short human-readable summary.
 
 ### `fixture`
-**Type:** `string`  
-This is the path to the directory that holds the base code for the task. It is relative to where the `agr.yaml` file is located. When a test runs, the contents of this directory will be copied straight into the container sandbox.
+
+**Type:** `string` (required)
+
+Path to the starting codebase directory, relative to `agr.yaml`. Copied into `/app` inside the Docker sandbox at run time.
 
 ### `prompt`
-**Type:** `string`  
-The specific instructions and context that will be handed over to the agent.
+
+**Type:** `string` (required)
+
+Instructions handed to the agent.
 
 ### `success`
-**Type:** `Array<SuccessCriterion>`  
-A list of specific checks to determine if the agent successfully completed the task.  
 
-*   **Run Criteria**:
-    *   `run`: A bash script to execute inside the sandbox environment.
-    *   `expect`: These are your assertions on the command output, like expecting `exit_code: 0`.
-*   **Assert Criteria**:
-    *   `assert`: This is a mathematical or logical expression that looks at run statistics like `steps`, `cost_usd`, `tokens_in`, and `tokens_out`.
+**Type:** `SuccessCriterion[]` (required)
+
+List of pass/fail checks:
+
+- **Run criterion**: `run: <shell command>` with `expect: { exit_code: 0 }` (or another exit code).
+- **Assert criterion**: `assert: <expression>` using run statistics: `steps`, `cost_usd`, `tokens_in`, `tokens_out`. Example: `assert: steps <= 10`.
 
 ### `timeout_seconds`
-**Type:** `number`  
-The absolute maximum time allowed for the run, measured in seconds. If the agent does not finish its work or submit within this time limit, the run is considered a failure.
 
-### SWE-bench Based Fields (Optional)
+**Type:** `number` (default: `300`)
 
-The following fields mirror the metadata found in SWE-bench instances to provide granular test scoring, tamper guards, and regression testing:
+Maximum run duration in seconds.
 
-*   **`tags`**: A list of strings used for tag-based pass-rate breakdowns in the `agr bench` command.
-*   **`test_command`**: The shell command used to run the test suite. The CLI currently expects TAP output to parse `PASS/FAIL/SKIP` states.
-*   **`fail_to_pass`**: A list of test names that are expected to be failing before the agent's changes, and passing after.
-*   **`pass_to_pass`**: A list of test names that are passing initially and must remain passing (regression guard).
-*   **`forbid_modified`**: A list of glob patterns representing files the agent is NOT allowed to touch (e.g., test files to prevent tampering).
-*   **`expected_files`**: A list of glob patterns of files the agent is expected to touch. Used by the `LocalizationScorer` to calculate precision/recall metrics.
-*   **`solution`**: Path to a gold-standard patch (or a raw unified diff) that solves the issue. Used by the `DiffScorer` and `agr validate`.
-*   **`test_patch`**: Path to a patch that adds or updates tests. This patch is applied strictly for evaluation and is completely hidden from the agent.
-*   **`created_at`**: Original issue/PR creation date (useful for contamination or date-cutoff checks).
+### `image`
+
+**Type:** `string` (optional)
+
+Custom Docker image for the sandbox. Defaults to the sandbox provider's standard image.
+
+### `toolkits`
+
+**Type:** `string[]` (optional)
+
+Paths to toolkit directories (custom CLI tools + Agent Skills) injected into the sandbox for this test case, in addition to any toolkits on the agent config.
+
+## SWE-bench fields (optional)
+
+These fields enable per-test regression scoring, tamper guards, and gold-patch validation: the same concepts as [SWE-bench](https://www.swebench.com/).
+
+### `tags`
+
+**Type:** `string[]` (optional)
+
+Labels for tag-based pass-rate breakdowns in `agr bench` output.
+
+### `test_command`
+
+**Type:** `string` (optional)
+
+Shell command to run the test suite inside the sandbox. Output must be **TAP** (Test Anything Protocol) so Agentgrader can parse per-test pass/fail status.
+
+Examples:
+
+```yaml
+# Node.js (built-in test runner)
+test_command: "node --test --test-reporter=tap src/**/*.test.js"
+
+# Python (requires pytest-tap: pip install pytest-tap)
+test_command: "pytest --tap-stream"
+```
+
+TAP lines look like:
+
+```
+ok 1 - greet returns a friendly message
+not ok 2 - handles empty input
+```
+
+### `fail_to_pass`
+
+**Type:** `string[]` (optional)
+
+Test names (as they appear in TAP output) that must be **failing** before the agent's changes and **passing** after. Used by `RegressionScorer` and `agr validate`.
+
+### `pass_to_pass`
+
+**Type:** `string[]` (optional)
+
+Test names that must remain **passing** throughout (regression guard).
+
+### `forbid_modified`
+
+**Type:** `string[]` (optional)
+
+Glob patterns for files the agent must not modify (e.g. test files: tamper guard). If the agent's diff touches a matching path, the run fails.
+
+### `expected_files`
+
+**Type:** `string[]` (optional)
+
+Glob patterns for files the agent is expected to touch. Used by `LocalizationScorer` for precision/recall metrics.
+
+### `solution`
+
+**Type:** `string` (optional)
+
+Path to a gold-standard patch (or inline unified diff) that fixes the issue. Used by `DiffScorer` and `agr validate` post-patch checks.
+
+### `test_patch`
+
+**Type:** `string` (optional)
+
+Path to a patch that adds or updates tests. Applied **only during evaluation**: the agent never sees this patch (mirrors SWE-bench).
+
+### `created_at`
+
+**Type:** `string` (optional, ISO 8601)
+
+Original issue or PR creation date. Used for contamination and date-cutoff checks during `agr validate`.
+
+## Validating a test case
+
+```bash
+agr validate path/to/agr.yaml
+```
+
+Without `test_command`, execution checks are skipped (⚠️). Use `--strict` in CI to require `test_command`, `fail_to_pass`, and `pass_to_pass`. See [Best Practices](/guide/best-practices).
+
+`agr validate` checks your definition: it does **not** auto-fill `fail_to_pass` or `pass_to_pass`. Populate those after running the test suite and reading TAP output.

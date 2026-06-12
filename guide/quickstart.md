@@ -1,67 +1,161 @@
 # Quickstart
 
-It is super easy to get started with Agentgrader. You can have your first benchmark running in just a few minutes.
+You can run your first agent evaluation in a few minutes. Install the CLI from npm, create a minimal test case on disk, and run it.
 
-Before we jump in, make sure you have a few things ready:
-*   Node.js (v18+) or [Bun](https://bun.sh/) installed on your machine.
-*   [Docker](https://www.docker.com/) installed and currently running.
-*   An API key from OpenRouter, OpenAI, or Anthropic.
+## Prerequisites
 
-## 1. Install Agentgrader
+- Node.js 18+ or [Bun](https://bun.sh/)
+- [Docker](https://www.docker.com/) installed and running
+- An API key from [OpenRouter](https://openrouter.ai/),  [OpenAI](https://platform.openai.com/login?next=/settings/organization/api-keys), or Anthropic [Anthropic API Keys](https://platform.claude.com/docs/en/api/admin/api_keys/retrieve)
 
-Install the CLI globally with npm or Bun. This puts the `agr` command directly on your `PATH` - no cloning or building required.
+## 1. Install the CLI
+
+Install globally so `agr` is on your `PATH`, or invoke it per-project with `bunx`:
 
 ```bash
 npm install -g agentgrader
 # or
 bun add -g agentgrader
+# or, without a global install:
+bunx agentgrader --help
 ```
+
+Verify the install:
 
 ```bash
 agr --help
 ```
 
-## 2. Set Up Your Environment
+## 2. Set your API key
 
-By default, Agentgrader uses OpenRouter as the gateway for Large Language Models. You just need to set your API key in your environment variables. If you do not have an OpenRouter key, it will smoothly fall back to direct OpenAI as long as you provide an `OPENAI_API_KEY`.
+The CLI loads a `.env` file from the current working directory automatically. Create one in your project folder:
+
+```bash
+# .env
+OPENROUTER_API_KEY=sk-or-...
+```
+
+Alternatively, export the variable in your shell:
 
 ```bash
 export OPENROUTER_API_KEY=sk-or-...
 ```
 
-Prefer to talk to Claude directly instead of going through OpenRouter? Set `provider: anthropic` in your agent config (see the [Agent Config reference](/reference/agent-config-yaml)) and export an `ANTHROPIC_API_KEY` - Agentgrader will call the Anthropic API directly using that key.
+To call Anthropic or OpenAI directly, set `provider: anthropic` or `provider: openai` in your agent config (see [Agent Config](/reference/agent-config-yaml)) and provide `ANTHROPIC_API_KEY` or `OPENAI_API_KEY` instead.
+
+## 3. Create a minimal test case
+
+Create a project directory and add an agent config plus a single test case with a fixture:
 
 ```bash
-export ANTHROPIC_API_KEY=sk-ant-...
+mkdir -p my-benchmark/test-cases/fix-greeting/fixture/src
+cd my-benchmark
 ```
 
-## 3. Get the Example Suite
+**`agent.yaml`**: which model to use:
 
-The `agr` CLI itself doesn't bundle any test cases - those live in the GitHub repo. Grab a copy to try Agentgrader against the included example suite and agent configs:
+```yaml
+name: Baseline Agent
+model: openai/gpt-4o-mini
+max_steps: 15
+temperature: 0.2
+system_prompt: |
+  You are a software developer. Fix the coding task in the sandbox.
+  Use executeCommand to run tests. Use readFile and writeFile to edit code.
+  Call submit when all tests pass.
+```
+
+**`test-cases/fix-greeting/fixture/package.json`**:
+
+```json
+{
+  "name": "fixture",
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-reporter=tap src/greet.test.js"
+  }
+}
+```
+
+**`test-cases/fix-greeting/fixture/src/greet.js`**:
+
+```js
+export function greet(name) {
+  return `Hello, ${name}`;
+}
+```
+
+**`test-cases/fix-greeting/fixture/src/greet.test.js`**:
+
+```js
+import { test } from "node:test";
+import assert from "node:assert";
+import { greet } from "./greet.js";
+
+test("greet returns a friendly message", () => {
+  assert.equal(greet("World"), "Hello, World!");
+});
+```
+
+**`test-cases/fix-greeting/agr.yaml`**: the test case definition:
+
+```yaml
+name: fix-greeting
+description: greet() is missing the exclamation mark
+fixture: ./fixture
+prompt: |
+  The greet() function in src/greet.js should return "Hello, World!" but
+  currently returns "Hello, World". Fix the function so all tests pass.
+success:
+  - run: npm test
+    expect: { exit_code: 0 }
+timeout_seconds: 300
+```
+
+## 4. Run your first evaluation
+
+From `my-benchmark/` (where your `.env` lives):
 
 ```bash
-git clone --depth 1 https://github.com/agentgrader/agr agentgrader-examples
-cd agentgrader-examples
+agr run test-cases/fix-greeting/agr.yaml --config agent.yaml
 ```
 
-## 4. Run Your First Benchmark
+Expected flow:
 
-Now for the fun part! Run an example benchmark that tests a baseline agent against a collection of TypeScript bugs:
+1. Agentgrader copies the fixture into a fresh Docker container.
+2. The agent reads files, runs `npm test`, and edits code.
+3. A run summary prints pass/fail, step count, cost, and duration.
+
+To watch agent steps as they happen (useful while debugging):
+
+```bash
+agr run test-cases/fix-greeting/agr.yaml --config agent.yaml --verbose
+```
+
+Example verbose output:
+
+```
+[step 1] tool_call: readFile({"path":"src/greet.js"})
+[step 2] tool_result: readFile -> export function greet(name) { ...
+[step 3] tool_call: executeCommand({"command":"npm test"})
+...
+```
+
+## 5. Run a benchmark (optional)
+
+Point `agr bench` at a directory of test cases and one or more agent configs:
 
 ```bash
 agr bench \
-  --suite examples/suites/typescript-bugs/ \
-  --configs examples/configs/baseline.yaml
+  --suite test-cases/ \
+  --config agent.yaml
 ```
 
-Sometimes you just want to focus on a single test case instead of running a full benchmark. In that case, you can simply use:
-```bash
-agr run examples/suites/typescript-bugs/add-error-handling/agr.yaml \
-  --config examples/configs/baseline.yaml
-```
+`--config` is a shorthand alias for `--configs` when you only have a single agent config. Use `--concurrency 2` (default) to run evaluations in parallel.
 
-## 5. Programmatic API
+## Next steps
 
-If you are a developer looking to integrate Agentgrader directly into your own CI/CD pipelines, tools, or custom evaluation scripts, you don't have to use the CLI. Agentgrader has a powerful programmatic API!
-
-Check out the [Programmatic API](/advanced/programmatic-api) guide to learn how to import `@agentgrader/core` and use the `runSingle` and `runBenchmark` functions directly in your code.
+- [Core Concepts](/guide/concepts): test cases, agent configs, scoring, and where results are stored
+- [Best Practices](/guide/best-practices): CI gates, `fail_to_pass`/`pass_to_pass`, matrix sweeps, troubleshooting
+- [CLI Reference](/reference/cli): full command and flag reference
+- [Programmatic API](/advanced/programmatic-api): embed evaluations in your own Node.js or Bun code
