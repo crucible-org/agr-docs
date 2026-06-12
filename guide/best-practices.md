@@ -101,6 +101,30 @@ After the run, inspect the full trace:
 agr trace <runId>
 ```
 
+## When to use `tools` allowlist
+
+By default every agent gets all local sandbox tools plus every tool from configured MCP servers. Set `tools` in `agent.yaml` when you want to **restrict** what the model can call:
+
+- **Read-only reviewers:** allow `readFile` and `executeCommand` but omit `writeFile` so the agent cannot modify the fixture directly.
+- **MCP hygiene:** when several MCP servers are connected, allowlist only the namespaced tools you intend (e.g. `github_create_issue`) and exclude the rest.
+- **Minimal agents:** force shell-only workflows with `executeCommand` + `submit` and no file tools.
+
+`submit` is always added implicitly. Unknown tool names in the list are ignored with a warning.
+
+See [Agent Config YAML](/reference/agent-config-yaml#tools).
+
+## `agent_config` in `agr.yaml` vs. bench config flags
+
+| Goal | Approach |
+|---|---|
+| One test case, one default agent; `agr run` with no flags | `agent_config: ../agent.yaml` in `agr.yaml` |
+| Same agent across an entire suite; `agr bench` with no config flags | Every test case references the **same** `agent_config` path |
+| Compare N agents × M test cases | `agr bench --configs-dir …` or `--configs a.yaml,b.yaml` |
+| Sweep hyperparameters (model × temperature × prompt) | `agr bench --matrix matrix.yaml` |
+| Reproducible suite + agent list in one file | `agr bench --manifest bench.yaml` |
+
+Per-test-case `agent_config` values are **not** expanded into a Cartesian product on `agr bench`. If test cases point at different agent configs, bench fails unless you pass explicit `--configs` / `--matrix` / `--manifest`.
+
 ## Compare agents with matrix benchmarks
 
 When evaluating multiple models or hyperparameters, use a matrix YAML instead of maintaining many separate agent config files:

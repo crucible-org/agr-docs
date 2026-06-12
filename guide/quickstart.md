@@ -106,19 +106,24 @@ fixture: ./fixture
 prompt: |
   The greet() function in src/greet.js should return "Hello, World!" but
   currently returns "Hello, World". Fix the function so all tests pass.
+agent_config: ../../agent.yaml
 success:
   - run: npm test
     expect: { exit_code: 0 }
 timeout_seconds: 300
 ```
 
+The `agent_config` field points to your default `agent.yaml` relative to this file. With it set, `agr run` needs no `--config` flag — a good default for one test case paired with one standard agent config.
+
 ## 4. Run your first evaluation
 
 From `my-benchmark/` (where your `.env` lives):
 
 ```bash
-agr run test-cases/fix-greeting/agr.yaml --config agent.yaml
+agr run test-cases/fix-greeting/agr.yaml
 ```
+
+Because `agent_config` is set in `agr.yaml`, Agentgrader loads `../../agent.yaml` automatically. You can still override with `--config` when experimenting with a different agent.
 
 Expected flow:
 

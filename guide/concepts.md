@@ -15,7 +15,7 @@ Agentgrader evaluates coding agents against **test cases** in isolated Docker sa
 
 A **test case** is self-contained: an `agr.yaml` manifest and a `fixture/` directory with the starting code. You can version-control a folder per test case.
 
-An **agent config** is reusable across many test cases. Pass it to `agr run` with `--config`, to `agr bench` with `--configs` / `--configs-dir`, or list paths/globs in a [bench manifest](/reference/bench-manifest-yaml).
+An **agent config** is reusable across many test cases. Pass it to `agr run` with `--config`, embed it in `agr.yaml` via `agent_config` (so `agr run` works without extra flags), to `agr bench` with `--configs` / `--configs-dir`, or list paths/globs in a [bench manifest](/reference/bench-manifest-yaml).
 
 A **run** executes exactly one test case with one agent config. Results are written to the local database (see [Persistence](#persistence) below).
 
@@ -67,7 +67,7 @@ system_prompt: |
 
 By default, requests route through OpenRouter (`openai/gpt-4o-mini`, `anthropic/claude-sonnet-4`, etc.). Set `provider: openai` or `provider: anthropic` to call those APIs directly with their native model names.
 
-See [Agent Config YAML](/reference/agent-config-yaml) for `toolkits`, `mcp_servers`, and other fields.
+Custom tools and MCP integrations are configured in YAML — not hardcoded in the adapter. See [Agent Config YAML](/reference/agent-config-yaml) for `toolkits`, `mcp_servers`, `tools` allowlist, and other fields.
 
 ## The sandbox
 

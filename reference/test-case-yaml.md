@@ -89,7 +89,26 @@ Custom Docker image for the sandbox. Defaults to the sandbox provider's standard
 
 **Type:** `string[]` (optional)
 
-Paths to toolkit directories (custom CLI tools + Agent Skills) injected into the sandbox for this test case, in addition to any toolkits on the agent config.
+Paths to toolkit directories (`bin/` custom CLI tools and/or `.claude/skills/*/SKILL.md` Agent Skills) injected into the sandbox for this test case, merged and deduplicated with any `toolkits` on the agent config.
+
+### `agent_config`
+
+**Type:** `string` (optional)
+
+Path to an `agent.yaml` file, relative to the directory containing `agr.yaml`. When set, `agr run <agr.yaml>` uses this agent config automatically — no `--config` flag required. An explicit `--config` on the CLI always overrides `agent_config` from the YAML.
+
+```yaml
+name: leetcode-two-sum
+fixture: ./fixture
+prompt: "Fix the failing test in two_sum.py"
+agent_config: ../../agent.yaml
+success:
+  - run: pytest
+    expect:
+      exit_code: 0
+```
+
+**`agr bench` behavior:** per-test-case `agent_config` values are **not** used as a Cartesian-product axis. To compare multiple agents across a suite, pass `--configs`, `--configs-dir`, `--matrix`, or `--manifest` (see [CLI Reference](/reference/cli)). Exception: if **every** test case in the suite references the **same** `agent_config` path and you pass no other config flags, `agr bench --suite <dir>` uses that shared path as a fallback (and errors if test cases disagree on different paths).
 
 ## SWE-bench fields (optional)
 
