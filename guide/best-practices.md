@@ -235,6 +235,12 @@ Set `step_timeout_ms` (default `120000`) in `agent.yaml` - see [Agent Config: `s
 
 If you hit this with an older `agentgrader`/`@agentgrader/agent-openrouter` build that predates `step_timeout_ms`, manually `docker rm -f` the leftover container (it will be `tail -f /dev/null` with no other process running) and upgrade.
 
+#### A second, independent cause: a hanging `test_command`
+
+Even with `step_timeout_ms` set, the same symptom (silent stall, leftover container) could still happen *after* the agent loop finished or was aborted: the `score` step runs `test_command` (and any `fail_to_pass`/`pass_to_pass` checks) inside the sandbox via `sandbox.exec()`, which previously had no timeout at all. If the agent's (possibly incomplete) edit introduced an infinite loop in the code under test, `exec()` would poll forever with no log output - identical at first glance to a provider hang, but with a completely different cause and fix.
+
+As of `@agentgrader/core`/`@agentgrader/sandbox-docker` with the `exec` timeout fix, `sandbox.exec()` gives up after 180s by default and reports `timedOut: true` (`CommandScorer` then fails the run with a "timed out and was abandoned" message instead of hanging), `runSingle`'s `score` step is skipped entirely when the agent loop itself errored (no point running the full test suite against a guaranteed-fail run), and `cleanup` bounds `sandbox.destroy()` to 60s. Upgrade if you're still seeing indefinite stalls after a `step_timeout_ms` abort.
+
 ### `[WARN] ... unrecognized field(s) "..."` when loading a config
 
 `agr run`, `agr bench`, and `agr validate` now warn on stderr if `agent.yaml` or `agr.yaml` contains a top-level key that the installed `@agentgrader/core` doesn't recognize, for example:
