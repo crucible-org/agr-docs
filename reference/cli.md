@@ -8,6 +8,47 @@ npm install -g agentgrader
 bunx agentgrader <command>
 ```
 
+## `agr init`
+
+Scaffold a minimal, runnable agentgrader project in the current directory (or `[dir]`), so you can try `agr run` immediately without writing any YAML by hand.
+
+```bash
+agr init
+# or into a new directory:
+agr init my-project
+```
+
+This creates:
+
+- `agent.yaml`: a baseline agent config using `claude-haiku-4-5-20251001` with `provider: anthropic` and `max_steps: 15`.
+- `tasks/hello-world/agr.yaml` and `tasks/hello-world/fixture/`: a tiny, self-contained test case. The fixture is a `math.js` with an unimplemented `add(a, b)` and a `math.test.js` using Node's built-in test runner (`node --test`), so no `npm install` or `pip install` is needed inside the sandbox.
+
+After scaffolding, set `ANTHROPIC_API_KEY` in your environment and run:
+
+```bash
+agr run tasks/hello-world/agr.yaml --config agent.yaml --verbose
+```
+
+### Options
+
+| Flag | Default | Description |
+|---|---|---|
+| `[dir]` | `.` | Directory to scaffold into. Created if it does not exist. |
+| `--force` | `false` | Overwrite `agent.yaml` if it already exists. Without it, `agr init` refuses to run on a directory that already has an `agent.yaml`, similar to `git init` on an existing repo. |
+
+### Examples
+
+```bash
+# Scaffold into the current directory
+agr init
+
+# Scaffold into a new directory
+agr init my-project
+
+# Re-scaffold, overwriting agent.yaml
+agr init my-project --force
+```
+
 ## `agr run`
 
 Run a single test case with one agent config. Useful for debugging a specific case or iterating on prompts.
