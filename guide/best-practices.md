@@ -137,6 +137,15 @@ see, at a glance, whether a custom `toolkits` CLI tool (vs. generic shell
 exploration like `find`/`grep`/`cd`) is actually being used, and to compare
 adoption across a `--matrix` of `toolkits` dimensions.
 
+If you know up front which toolkit commands an agent *should* use, set
+[`require_tools_before_submit`](/reference/agent-config-yaml#require-tools-before-submit)
+in `agent.yaml` (e.g. `["run-tests", "inspect-code"]`). Every run then
+annotates `metrics["tool-adoption"]` with which of those commands were
+actually invoked before `submit`, surfaced by `agr trace --quality` and a
+`TOOL ADOPTION BY CONFIG` footer in `agr bench`. This never blocks the run;
+it just turns "is the agent actually using the tools I gave it" from a manual
+trace-reading exercise into a structured, comparable signal.
+
 ## CI recommendations
 
 - Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.

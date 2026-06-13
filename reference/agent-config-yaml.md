@@ -120,6 +120,22 @@ toolkits:
   - ../toolkits/python-linter
 ```
 
+### `require_tools_before_submit`
+
+**Type:** `string[]` (optional)
+
+Command names (e.g. a toolkit's `run-tests` or `inspect-code`, or a generic `pytest`/`biome`) that should have been invoked at least once before `submit`. Checked against direct tool names and the first word of `executeCommand`/`terminal/create` commands (see [Measuring toolkit adoption](/guide/best-practices#measuring-toolkit-adoption)).
+
+This never blocks the run or affects `passed`/`score`; it only annotates `metrics["tool-adoption"]` with `{ passed, detail, required, missing }`, surfaced by `agr trace --quality` and the `TOOL ADOPTION BY CONFIG` footer of `agr bench`. Useful for spotting toolkit tools that are configured and described to the agent but never actually used.
+
+```yaml
+toolkits:
+  - ../toolkits/jetbrains-tools
+require_tools_before_submit:
+  - run-tests
+  - inspect-code
+```
+
 ### `mcp_servers`
 
 **Type:** `record<string, McpServerConfig>` (optional)
