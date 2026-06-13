@@ -235,6 +235,18 @@ Set `step_timeout_ms` (default `120000`) in `agent.yaml` - see [Agent Config: `s
 
 If you hit this with an older `agentgrader`/`@agentgrader/agent-openrouter` build that predates `step_timeout_ms`, manually `docker rm -f` the leftover container (it will be `tail -f /dev/null` with no other process running) and upgrade.
 
+### `[WARN] ... unrecognized field(s) "..."` when loading a config
+
+`agr run`, `agr bench`, and `agr validate` now warn on stderr if `agent.yaml` or `agr.yaml` contains a top-level key that the installed `@agentgrader/core` doesn't recognize, for example:
+
+```
+[WARN] agent config "agent.yaml": unrecognized field(s) "step_timeout_ms" - these are silently ignored. Likely causes: a typo, or your installed @agentgrader/core doesn't support this field yet (e.g. step_timeout_ms, escalate_after_steps/escalate_model). Check your @agentgrader/core version.
+```
+
+This catches a "config version-skew" trap: zod's `.parse()` silently drops unrecognized keys, so a field your YAML sets - `step_timeout_ms`, `escalate_after_steps`/`escalate_model`, etc. - can have *zero effect* with no error if your `@agentgrader/core` predates that field. Before this warning existed, the symptom was indistinguishable from the field simply "not helping" (e.g. a configured `step_timeout_ms: 90000` silently falling back to the 120s default).
+
+If you see this warning, either fix the typo or upgrade `@agentgrader/core` (and re-run `bun link @agentgrader/core` in any project that links it locally, per [Testing unpublished crucible changes locally](#testing-unpublished-crucible-changes-locally) below) so the field takes effect.
+
 ### A run finished with `finished: false` but `agr trace` shows no score detail
 
 A run can end up with `finished: false` for two very different reasons that otherwise look identical: either the agent submitted a solution that failed scoring, or the agent loop itself never reached `submit` (an error or a `step_timeout_ms` abort cut it off first).
