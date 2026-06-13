@@ -8,6 +8,8 @@ npm install -g agentgrader
 bunx agentgrader <command>
 ```
 
+> **Output convention**: `agr` output never contains emoji or other pictographic symbols, anywhere. Status is conveyed with plain text labels (`PASS`/`FAIL`, `[OK]`/`[WARN]`/`[FAIL]`, `[error]`) and, where the terminal supports it, ANSI/Ink color (green for pass, red for fail, yellow for warnings/in-progress, cyan for headers, gray for secondary text).
+
 ## `agr init`
 
 Scaffold a minimal, runnable agentgrader project in the current directory (or `[dir]`), so you can try `agr run` immediately without writing any YAML by hand.
@@ -57,13 +59,21 @@ Run a single test case with one agent config. Useful for debugging a specific ca
 agr run test-cases/fix-greeting/agr.yaml --config agent.yaml
 ```
 
+`agr run` renders a live terminal UI (built with Ink) while the agent works, then a summary panel and diff once it finishes:
+
+- **Live steps**: each `StepEvent` the agent emits appears as soon as it happens, color-coded by kind (tool calls, tool results, messages, thinking). With `--verbose`, each step shows its tool name and a truncated content preview (up to 200 characters). Without `--verbose`, you instead get a compact running counter of step count and accumulated cost.
+- **Summary panel**: a bordered `RUN SUMMARY` box showing status (`PASSED`/`FAILED`), step count, cost, duration, the prompt-cache hit rate (`prompt cache: X/Y input tokens served from cache (Z%)`), any run error, and the regression/diff/localization metric lines (skipped checks are flagged with `[skip]`).
+- **Diff**: if the agent changed any files, a `Diff` panel renders the unified git diff with added lines in green, removed lines in red, and hunk headers (`@@ ...`) in cyan. Large diffs are capped at 60 lines with a "... N more line(s)" note.
+
+Exit codes are unchanged: `0` once the run completes (regardless of `PASSED`/`FAILED`), `1` if the run itself throws (e.g. a sandbox or provider error).
+
 ### Options
 
 | Flag | Default | Description |
 |---|---|---|
 | `<testCase>` | Required | Path to an `agr.yaml` file. |
 | `--config <path>` | Built-in default | Path to an agent config YAML. If omitted, uses `gpt-4o-mini` with `max_steps: 20`. |
-| `--verbose` | `false` | Stream agent steps live to the console as they happen. |
+| `--verbose` | `false` | Show full per-step detail (tool name + content preview) in the live step list, instead of the compact step/cost counter. |
 
 ### Examples
 
