@@ -155,6 +155,17 @@ stronger wording ("you MUST...", "X is the ONLY way to...") can make adoption
 trivial. Treat persistent `MISSING` results as a cue to look at task
 difficulty and the model's own confidence, not just at your system prompt.
 
+### Design new toolkit tools as part of an existing workflow step
+
+When adding a new optional `toolkits` tool, slot it into a workflow step the
+agent is *already* following alongside a tool it already adopts, rather than
+introducing it as its own standalone step (and especially rather than adding
+it straight to `require_tools_before_submit`). A tool grouped with an
+already-adopted tool for the same step (e.g. "before submit, run `lint-tool`
+and `new-tool` on every changed file") tends to get picked up immediately,
+even unrequired - whereas a standalone new step competes for the agent's
+attention the same way stronger prompt wording does (see above).
+
 ## CI recommendations
 
 - Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.
