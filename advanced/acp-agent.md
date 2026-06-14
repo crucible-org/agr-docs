@@ -116,12 +116,15 @@ commands) need, e.g. `pip install pytest` on a bare `python:3.11` image. See
 This means an ACP agent (Claude Code, Cursor Agent, ...) can invoke a custom
 toolkit command - e.g. a JetBrains-style `find-usages`/`view-structure`
 script - via `terminal/create`, exactly as it would invoke `pytest` or
-`git`. Whether it *chooses* to depends on the agent's own system prompt and
-tool-selection behavior, which agentgrader does not control for ACP agents
-(unlike `agent.yaml`'s `system_prompt`, which only applies to the AI SDK
-adapter). Use `agr trace <runId> --tools` to check adoption either way -
-`executeCommand`-equivalent terminal calls are bucketed by command name the
-same as for the AI SDK adapter.
+`git`. ACP has no dedicated system-prompt field, so agentgrader sends
+`agent.yaml`'s `system_prompt` (including the toolkits skills addendum
+listing each bundled tool's name and description) as a leading text block in
+the same prompt turn, ahead of the task prompt - the same mechanism used for
+the AI SDK adapter, just delivered differently. Whether the ACP agent then
+*chooses* to use a tool still depends on its own tool-selection behavior,
+which agentgrader does not otherwise control. Use `agr trace <runId> --tools`
+to check adoption either way - `executeCommand`-equivalent terminal calls are
+bucketed by command name the same as for the AI SDK adapter.
 
 **How this is wired:** the ACP agent process itself runs on the host, but
 every file and shell operation it performs for the session goes through the

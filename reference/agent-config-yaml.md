@@ -233,7 +233,9 @@ acp_args:
 acp_cwd: /app
 ```
 
-When using the ACP adapter, `provider`, `temperature`, `system_prompt`, `tools`, and `mcp_servers` in this file are ignored; the external agent brings its own model and tooling. `step_timeout_ms` still applies to the prompt turn.
+When using the ACP adapter, `provider`, `temperature`, `tools`, and `mcp_servers` in this file are ignored; the external agent brings its own model and tooling. `step_timeout_ms` still applies to the prompt turn.
+
+`system_prompt` is not ignored: ACP has no dedicated system-prompt field, so it is sent as a leading text block in the same prompt turn, ahead of the task prompt. This is how the `toolkits` skills addendum (see [`toolkits`](#toolkits)) reaches an ACP agent, since without it an ACP agent would only learn about bundled toolkit tools by exploring the sandbox filesystem itself.
 
 ## Example: toolkits, MCP, and allowlist combined
 
