@@ -155,6 +155,15 @@ stronger wording ("you MUST...", "X is the ONLY way to...") can make adoption
 trivial. Treat persistent `MISSING` results as a cue to look at task
 difficulty and the model's own confidence, not just at your system prompt.
 
+If one toolkit tool internally calls another (e.g. a `rename-symbol` that
+runs `run-tests` on the affected files after renaming, instead of leaving
+verification to the agent), the wrapped tool still counts as "used" for
+`require_tools_before_submit`, as long as it prints a self-identifying
+`<name>: ...` line to its output (the way `run-tests` prints
+`run-tests: running <files>`). Without that marker line, a wrapped call is
+invisible to the adoption check, since the agent never invoked the wrapped
+command itself.
+
 ### Scaffolding new toolkit tools
 
 Run `agr toolkit-add <name> [--dir <toolkitDir>]` to generate a `bin/<name>`
