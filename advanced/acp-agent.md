@@ -117,6 +117,16 @@ adapter). Use `agr trace <runId> --tools` to check adoption either way -
 `executeCommand`-equivalent terminal calls are bucketed by command name the
 same as for the AI SDK adapter.
 
+**How this is wired:** the ACP agent process itself runs on the host, but
+every file and shell operation it performs for the session goes through the
+ACP client methods (`fs/read_text_file`, `fs/write_text_file`,
+`terminal/create`), which agentgrader's `AcpAgentAdapter` implements by
+forwarding into the Docker sandbox (resolving relative paths against
+`acp_cwd`, default `/app`). So `readFile(".claude/skills/find-usages/SKILL.md")`
+and `terminal/create({ command: "find-usages", args: [...] })` both resolve
+inside the same sandbox container where `toolkits:` placed those files -
+there is no separate host-side copy for the agent to miss.
+
 ### Scaffolding a new toolkit tool
 
 Use `agr toolkit-add <name>` to generate the `bin/<name>` script and
