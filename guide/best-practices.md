@@ -184,6 +184,20 @@ cannot reliably attribute an adoption change to a prompt or toolkit tweak;
 either average over several runs, or use a task where the model isn't
 confident enough to skip verification outright.
 
+**Caveat: a redundant tool can stay unused even on a perfect-fit task.** If a
+new tool's purpose overlaps with an existing, already-adopted tool's (e.g. a
+"can I safely delete X?" tool vs. a general "find all references to X" tool
+that can answer the same question), the agent may default to the familiar
+tool even on a task designed specifically to need the new one - not because
+the new tool failed to register, but because the existing tool already
+satisfies the immediate question. This is distinct from the
+overconfidence-driven MISSING above: the agent *did* verify before acting, it
+just used tool A where you expected tool B. Before adding a tool that
+overlaps with an existing one, consider whether it should instead be an
+additional mode/flag on the existing tool (the existing tool then surfaces
+both answers in one call) rather than a separate command competing for the
+same moment in the workflow.
+
 ## CI recommendations
 
 - Install with `npm install -g agentgrader` or `bun add -g agentgrader` on the runner.
